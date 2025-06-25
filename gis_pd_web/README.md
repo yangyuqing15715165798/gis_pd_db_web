@@ -6,6 +6,24 @@
 
 **重要特点**：本系统通过从SQLite数据库实时读取数据进行更新，而非直接连接传感器。系统使用WebSocket技术定期检查数据库中的新数据，并将其推送到前端进行可视化显示。这种设计使得Web版可以与桌面版应用程序共享同一数据源，实现数据的统一管理和多终端访问。
 
+## 最近更新与修复
+
+### 2025年6月更新
+
+1. **历史数据页面布局优化**
+   - 将PRPD图和PRPS图的显示方式从上下布局改为左右布局
+   - 优化了图表容器样式，确保左右布局时两个图表均能正常显示
+   - 改进了图表切换逻辑，保持布局一致性
+
+2. **历史PRPS三维图显示问题修复**
+   - 修复了历史数据页面中PRPS三维图显示为空白的问题
+   - 完善了图表切换逻辑，确保在切换到PRPS图时能够正确重新渲染
+   - 添加了图表尺寸调整功能，确保图表在容器中正确显示
+
+3. **数据更新间隔设置说明**
+   - 明确了系统设置中"数据更新间隔(秒)"的实际作用
+   - 注意：目前后端的数据更新间隔为固定的1秒，前端的设置暂未与后端集成
+
 ## 系统功能
 
 ### 1. 实时监测功能
@@ -154,6 +172,57 @@
    - 对不同长度的周期数据进行线性插值
    - 创建Z值矩阵
 5. 使用Plotly.react完全重绘三维图表
+
+### 历史PRPS图表优化实现
+
+1. **切换重渲染机制**：在图表类型切换时，重新获取数据并触发完整的渲染流程
+   ```javascript
+   // 当切换到PRPS图时，确保重新渲染图表
+   fetch(url)
+       .then(response => response.json())
+       .then(data => {
+           if (data.success) {
+               updateHistoryPrpsChart(data.data);
+           }
+       });
+   ```
+   
+2. **布局显示优化**：使用CSS Flexbox实现左右布局
+   ```css
+   .history-chart .charts {
+       display: flex;
+       flex-wrap: wrap;
+       margin: 0 -0.75rem;
+   }
+   
+   .history-chart .chart {
+       flex: 1;
+       min-width: 300px;
+       padding: 0 0.75rem;
+   }
+   ```
+   
+3. **延时尺寸调整**：使用setTimeout延迟调用，确保图表容器可见后再调整尺寸
+   ```javascript
+   setTimeout(() => {
+       if (historyPrpsChart && historyPrpsChart._fullLayout) {
+           Plotly.relayout(historyPrpsChart, {autosize: true});
+       }
+   }, 100);
+   ```
+
+### 数据更新间隔机制说明
+
+- **前端设置**：系统设置中的"数据更新间隔(秒)"通过JavaScript变量`updateInterval`控制
+- **后端实现**：后端WebSocket处理中数据更新间隔目前为硬编码的1秒
+  ```python
+  # 实时检查数据库更新
+  while True:
+      # 每隔1秒检查一次数据库更新
+      await asyncio.sleep(1)
+      new_data = await check_new_data()
+  ```
+- **未来优化方向**：考虑实现前后端数据更新间隔的完全同步，使前端设置能够真正控制后端的检查频率
 
 ### 数据单位转换
 

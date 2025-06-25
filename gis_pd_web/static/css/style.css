@@ -306,4 +306,24 @@ canvas {
 .js-plotly-plot {
     width: 100% !important;
     height: 400px !important;
+}
+
+/* 历史图表区域样式 */
+.history-chart .charts {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -0.75rem;
+}
+
+.history-chart .chart {
+    flex: 1;
+    min-width: 300px;
+    padding: 0 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+/* 确保Plotly图表在容器中正确显示 */
+.js-plotly-plot .plotly {
+    width: 100%;
+    height: 100%;
 } 

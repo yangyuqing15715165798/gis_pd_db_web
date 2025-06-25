@@ -596,15 +596,54 @@ function initControlEvents() {
     // 历史图表类型切换
     document.getElementById('history-chart-type').addEventListener('change', function() {
         const chartType = this.value;
-        const historyPrpdChartElement = document.getElementById('history-prpd-chart');
-        const historyPrpsChartElement = document.getElementById('history-prps-chart');
+        const historyPrpdChartWrapper = document.getElementById('history-prpd-chart').closest('.chart-wrapper');
+        const historyPrpsChartWrapper = document.getElementById('history-prps-chart').closest('.chart-wrapper');
         
         if (chartType === 'prps') {
-            historyPrpdChartElement.style.display = 'none';
-            historyPrpsChartElement.style.display = 'block';
+            // 显示PRPS图
+            historyPrpsChartWrapper.style.display = 'block';
+            document.getElementById('history-prps-chart').style.display = 'block';
+            
+            // 当切换到PRPS图时，确保重新渲染图表
+            // 获取当前查询的数据
+            const queryType = document.getElementById('query-type').value;
+            let url;
+            
+            if (queryType === 'latest') {
+                const count = document.getElementById('latest-count').value;
+                url = `/api/latest_cycle_data?count=${count}`;
+            } else {
+                const startTime = document.getElementById('start-time').value;
+                const endTime = document.getElementById('end-time').value;
+                
+                if (!startTime || !endTime) {
+                    alert('请选择开始时间和结束时间');
+                    return;
+                }
+                
+                const formattedStartTime = formatDateTimeForDb(startTime);
+                const formattedEndTime = formatDateTimeForDb(endTime);
+                
+                url = `/api/cycle_data_by_time?start_time=${encodeURIComponent(formattedStartTime)}&end_time=${encodeURIComponent(formattedEndTime)}`;
+            }
+            
+            // 重新获取数据并更新PRPS图表
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateHistoryPrpsChart(data.data);
+                    } else {
+                        console.error('获取历史数据失败:', data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('请求历史数据出错:', error);
+                });
         } else {
-            historyPrpdChartElement.style.display = 'block';
-            historyPrpsChartElement.style.display = 'none';
+            // 显示PRPD图
+            historyPrpsChartWrapper.style.display = 'block';
+            document.getElementById('history-prps-chart').style.display = 'none';
             
             // 更新PRPD图表类型
             if (chartType === 'prpd-scatter') {
@@ -729,10 +768,15 @@ function queryHistoricalData() {
 function updateHistoryCharts(data) {
     const chartType = document.getElementById('history-chart-type').value;
     
+    // 更新PRPD图表
+    updateHistoryPrpdChart(data, chartType === 'prpd-scatter' ? 'scatter' : 'line');
+    
+    // 如果选择的是PRPS图，则更新PRPS图表并显示
     if (chartType === 'prps') {
         updateHistoryPrpsChart(data);
+        document.getElementById('history-prps-chart').style.display = 'block';
     } else {
-        updateHistoryPrpdChart(data, chartType === 'prpd-scatter' ? 'scatter' : 'line');
+        document.getElementById('history-prps-chart').style.display = 'none';
     }
 }
 
@@ -896,10 +940,24 @@ function updateHistoryPrpsChart(data) {
         autosize: true
     };
     
+    const config = {
+        responsive: true,
+        displayModeBar: true,
+        modeBarButtonsToRemove: ['toImage', 'sendDataToCloud'],
+        displaylogo: false
+    };
+    
     // 完全重新绘制图表，而不是更新
     try {
-        Plotly.react(historyPrpsChart, plotData, layout);
+        Plotly.react(historyPrpsChart, plotData, layout, config);
         console.log("历史PRPS图表重绘成功");
+        
+        // 确保图表容器可见并调整大小
+        setTimeout(() => {
+            if (historyPrpsChart && historyPrpsChart._fullLayout) {
+                Plotly.relayout(historyPrpsChart, {autosize: true});
+            }
+        }, 100);
     } catch (error) {
         console.error("更新历史PRPS图表时出错:", error);
     }

@@ -129,11 +129,19 @@
                     </div>
                     
                     <div class="history-chart">
-                        <div class="chart-wrapper" style="position: relative; height: 400px;">
-                            <canvas id="history-prpd-chart"></canvas>
-                        </div>
-                        <div class="chart-wrapper" style="position: relative; height: 400px;">
-                            <div id="history-prps-chart" style="display:none;"></div>
+                        <div class="charts">
+                            <div class="chart">
+                                <h3>PRPD图</h3>
+                                <div class="chart-wrapper" style="position: relative; height: 400px;">
+                                    <canvas id="history-prpd-chart"></canvas>
+                                </div>
+                            </div>
+                            <div class="chart">
+                                <h3>PRPS图</h3>
+                                <div class="chart-wrapper" style="position: relative; height: 400px; width: 100%;">
+                                    <div id="history-prps-chart" style="display:none; height: 100%; width: 100%;"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
