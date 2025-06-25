@@ -311,11 +311,22 @@ function updateCharts(data) {
 function updatePrpdChart(data) {
     // 处理数据
     const chartType = document.getElementById('chart-type').value;
+    
+    console.log("PRPD图表更新 - 接收到的周期数:", data.length);
+    
+    // 只使用PRPD需要的最新周期数
+    let prpdData = data;
+    if (data.length > maxCycles) {
+        prpdData = data.slice(-maxCycles);
+    }
+    
+    console.log("PRPD图表更新 - 使用的周期数:", prpdData.length, "最大周期数设置:", maxCycles);
+    
     const allData = [];
     const xData = [];
     
     // 合并所有周期的数据用于绘图
-    data.forEach(cycle => {
+    prpdData.forEach(cycle => {
         const cycleData = cycle.data;
         const phaseStep = 360 / cycleData.length;
         
@@ -346,6 +357,9 @@ function updatePrpdChart(data) {
     
     // 更新图表数据
     prpdChart.data.datasets[0].data = chartData;
+    
+    // 更新图表标题
+    prpdChart.options.plugins.title.text = `PRPD图 (最新${prpdData.length}个周期)`;
     
     // 更新Y轴标题
     prpdChart.options.scales.y.title.text = useDbm ? '幅值 (dBm)' : '幅值 (mV)';
@@ -615,16 +629,33 @@ function initControlEvents() {
 
 // 保存设置
 function saveSettings() {
+    // 保存旧设置用于比较
+    const oldMaxCycles = maxCycles;
+    const oldUpdateInterval = updateInterval;
+    const oldColorScheme = colorScheme;
+    
+    // 更新设置
     updateInterval = parseInt(document.getElementById('update-interval').value) * 1000;
     maxCycles = parseInt(document.getElementById('max-cycles').value);
     colorScheme = document.getElementById('color-scheme').value;
     
-    // 如果WebSocket连接存在，关闭并重新连接
-    if (websocket !== null) {
+    console.log("设置已更新 - 最大周期数:", maxCycles, "更新间隔:", updateInterval, "颜色方案:", colorScheme);
+    
+    // 检查是否需要重新连接WebSocket
+    const needReconnect = oldUpdateInterval !== updateInterval;
+    
+    if (needReconnect && websocket !== null) {
+        console.log("更新间隔已更改，重新连接WebSocket");
         websocket.close();
         setTimeout(function() {
             connectWebSocket();
         }, 500);
+    } else {
+        // 如果不需要重新连接，但设置已更改，立即获取最新数据以应用新设置
+        if (oldMaxCycles !== maxCycles || oldColorScheme !== colorScheme) {
+            console.log("设置已更改，刷新数据");
+            fetchLatestData();
+        }
     }
     
     alert('设置已保存');
@@ -708,11 +739,21 @@ function updateHistoryCharts(data) {
 // 更新历史PRPD图表
 function updateHistoryPrpdChart(data, type) {
     // 处理数据
+    console.log("历史PRPD图表更新 - 接收到的周期数:", data.length);
+    
+    // 只使用PRPD需要的最新周期数
+    let prpdData = data;
+    if (data.length > maxCycles) {
+        prpdData = data.slice(-maxCycles);
+    }
+    
+    console.log("历史PRPD图表更新 - 使用的周期数:", prpdData.length, "最大周期数设置:", maxCycles);
+    
     const allData = [];
     const xData = [];
     
     // 合并所有周期的数据用于绘图
-    data.forEach(cycle => {
+    prpdData.forEach(cycle => {
         const cycleData = cycle.data;
         const phaseStep = 360 / cycleData.length;
         
@@ -743,6 +784,9 @@ function updateHistoryPrpdChart(data, type) {
     
     // 更新图表数据
     historyPrpdChart.data.datasets[0].data = chartData;
+    
+    // 更新图表标题
+    historyPrpdChart.options.plugins.title.text = `历史PRPD图 (${prpdData.length}个周期)`;
     
     // 更新Y轴标题
     historyPrpdChart.options.scales.y.title.text = useDbm ? '幅值 (dBm)' : '幅值 (mV)';
@@ -863,7 +907,11 @@ function updateHistoryPrpsChart(data) {
 
 // 获取最新数据
 function fetchLatestData() {
-    fetch(`/api/latest_cycle_data?count=${maxCycles}`)
+    // 请求足够的数据以满足PRPD和PRPS图表的需求
+    const requestCount = Math.max(maxCycles, prpsMaxCycles);
+    console.log(`请求最新数据 - 请求数量: ${requestCount} (PRPD: ${maxCycles}, PRPS: ${prpsMaxCycles})`);
+    
+    fetch(`/api/latest_cycle_data?count=${requestCount}`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
