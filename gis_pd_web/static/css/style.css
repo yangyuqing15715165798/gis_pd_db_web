@@ -1,0 +1,309 @@
+/* 全局样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Microsoft YaHei', Arial, sans-serif;
+}
+
+body {
+    background-color: #f5f5f5;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* 头部样式 */
+header {
+    background-color: #2c3e50;
+    color: white;
+    padding: 1rem;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* 导航栏样式 */
+nav {
+    background-color: #34495e;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+nav ul {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+nav ul li {
+    flex: 1;
+    text-align: center;
+}
+
+nav ul li a {
+    display: block;
+    color: white;
+    text-decoration: none;
+    padding: 1rem;
+    transition: background-color 0.3s;
+}
+
+nav ul li a:hover {
+    background-color: #2c3e50;
+}
+
+nav ul li a.active {
+    background-color: #1abc9c;
+}
+
+/* 主内容区域样式 */
+main {
+    padding: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* 页面区域 */
+.section {
+    display: none;
+}
+
+.active-section {
+    display: block;
+}
+
+/* 仪表盘样式 */
+.dashboard {
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+/* 统计面板样式 */
+.stats-panel {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.stat-item {
+    flex: 1;
+    min-width: 200px;
+    background-color: #ecf0f1;
+    border-radius: 5px;
+    padding: 1rem;
+    margin: 0.5rem;
+    text-align: center;
+}
+
+.stat-item h3 {
+    color: #7f8c8d;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.stat-item p {
+    color: #2c3e50;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* 图表容器样式 */
+.chart-container {
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.chart-controls {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+    background-color: #ecf0f1;
+    padding: 1rem;
+    border-radius: 5px;
+}
+
+.control-group {
+    margin-right: 1.5rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.control-group label {
+    margin-right: 0.5rem;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.control-group select,
+.control-group input[type="number"],
+.control-group input[type="range"] {
+    padding: 0.3rem;
+    border: 1px solid #bdc3c7;
+    border-radius: 3px;
+}
+
+.control-group button {
+    padding: 0.3rem 0.8rem;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.control-group button:hover {
+    background-color: #2980b9;
+}
+
+/* 图表样式 */
+.charts {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -0.75rem;
+}
+
+.chart {
+    flex: 1;
+    min-width: 300px;
+    padding: 0 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.chart h3 {
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+}
+
+#prpd-chart,
+#prps-chart,
+#history-prpd-chart,
+#history-prps-chart {
+    width: 100%;
+    height: 400px !important; /* 使用!important确保高度不被覆盖 */
+    max-height: 400px !important; /* 设置最大高度 */
+    border: 1px solid #ecf0f1;
+    border-radius: 3px;
+    overflow: hidden; /* 防止内容溢出 */
+}
+
+/* 表单样式 */
+.query-form,
+.settings-form {
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.3rem;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #bdc3c7;
+    border-radius: 3px;
+}
+
+button {
+    padding: 0.5rem 1rem;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #2980b9;
+}
+
+/* 历史结果样式 */
+.history-results {
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+}
+
+.history-results h3 {
+    margin-bottom: 1rem;
+    color: #2c3e50;
+}
+
+/* 页脚样式 */
+footer {
+    background-color: #2c3e50;
+    color: white;
+    text-align: center;
+    padding: 1rem;
+    margin-top: 1.5rem;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .stats-panel {
+        flex-direction: column;
+    }
+    
+    .stat-item {
+        margin-bottom: 0.5rem;
+    }
+    
+    .charts {
+        flex-direction: column;
+    }
+    
+    .chart {
+        margin-bottom: 1rem;
+    }
+    
+    .control-group {
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* 图表包装器样式 */
+.chart-wrapper {
+    position: relative;
+    height: 400px;
+    width: 100%;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+
+/* 确保图表不会随鼠标变化大小 */
+canvas {
+    pointer-events: none;
+}
+
+/* 允许图表上的交互，但防止大小变化 */
+.chart-wrapper canvas {
+    pointer-events: auto;
+    touch-action: none;
+}
+
+/* 修复Plotly图表的样式 */
+.js-plotly-plot {
+    width: 100% !important;
+    height: 400px !important;
+} 

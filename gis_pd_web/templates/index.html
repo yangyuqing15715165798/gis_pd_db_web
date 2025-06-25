@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIS局部放电在线监测系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/style.css') }}">
+    <!-- 引入Chart.js库 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- 引入Plotly.js库用于3D图表 -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>GIS局部放电在线监测系统</h1>
+    </header>
+    
+    <nav>
+        <ul>
+            <li><a href="#" class="active" id="nav-realtime">实时监测</a></li>
+            <li><a href="#" id="nav-history">历史数据</a></li>
+            <li><a href="#" id="nav-settings">系统设置</a></li>
+        </ul>
+    </nav>
+    
+    <main>
+        <!-- 实时监测页面 -->
+        <section id="realtime-section" class="active-section">
+            <div class="dashboard">
+                <div class="stats-panel">
+                    <div class="stat-item">
+                        <h3>周期数据总数</h3>
+                        <p id="cycle-count">加载中...</p>
+                    </div>
+                    <div class="stat-item">
+                        <h3>原始数据总数</h3>
+                        <p id="raw-count">加载中...</p>
+                    </div>
+                    <div class="stat-item">
+                        <h3>最新数据时间</h3>
+                        <p id="latest-time">加载中...</p>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="chart-controls">
+                        <div class="control-group">
+                            <label for="chart-type">PRPD图类型:</label>
+                            <select id="chart-type">
+                                <option value="scatter">散点图</option>
+                                <option value="line">线图</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label for="show-sine">显示参考正弦波:</label>
+                            <input type="checkbox" id="show-sine" checked>
+                        </div>
+                        <div class="control-group">
+                            <label for="sine-amplitude">正弦波振幅:</label>
+                            <input type="range" id="sine-amplitude" min="0.1" max="3.0" step="0.1" value="1.0">
+                            <span id="sine-amplitude-value">1.0</span>
+                        </div>
+                        <div class="control-group">
+                            <label for="unit-toggle">单位切换:</label>
+                            <button id="unit-toggle">单位: mV</button>
+                        </div>
+                    </div>
+                    
+                    <div class="charts">
+                        <div class="chart">
+                            <h3>PRPD图</h3>
+                            <div class="chart-wrapper" style="position: relative; height: 400px;">
+                                <canvas id="prpd-chart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart">
+                            <h3>PRPS图</h3>
+                            <div class="chart-wrapper" style="position: relative; height: 400px;">
+                                <div id="prps-chart"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 历史数据页面 -->
+        <section id="history-section" class="section">
+            <h2>历史数据查询</h2>
+            <div class="query-form">
+                <div class="form-group">
+                    <label for="query-type">查询类型:</label>
+                    <select id="query-type">
+                        <option value="latest">最新数据</option>
+                        <option value="time-range">时间范围</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" id="latest-count-group">
+                    <label for="latest-count">数据条数:</label>
+                    <input type="number" id="latest-count" min="1" max="200" value="50">
+                </div>
+                
+                <div class="form-group time-range-group" style="display:none;">
+                    <label for="start-time">开始时间:</label>
+                    <input type="datetime-local" id="start-time">
+                </div>
+                
+                <div class="form-group time-range-group" style="display:none;">
+                    <label for="end-time">结束时间:</label>
+                    <input type="datetime-local" id="end-time">
+                </div>
+                
+                <button id="query-btn">查询</button>
+            </div>
+            
+            <div class="history-results">
+                <h3>查询结果</h3>
+                <div class="chart-container">
+                    <div class="chart-controls">
+                        <div class="control-group">
+                            <label for="history-chart-type">图表类型:</label>
+                            <select id="history-chart-type">
+                                <option value="prpd-scatter">PRPD散点图</option>
+                                <option value="prpd-line">PRPD线图</option>
+                                <option value="prps">PRPS三维图</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="history-chart">
+                        <div class="chart-wrapper" style="position: relative; height: 400px;">
+                            <canvas id="history-prpd-chart"></canvas>
+                        </div>
+                        <div class="chart-wrapper" style="position: relative; height: 400px;">
+                            <div id="history-prps-chart" style="display:none;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 系统设置页面 -->
+        <section id="settings-section" class="section">
+            <h2>系统设置</h2>
+            <div class="settings-form">
+                <div class="form-group">
+                    <label for="update-interval">数据更新间隔(秒):</label>
+                    <input type="number" id="update-interval" min="1" max="60" value="1">
+                </div>
+                
+                <div class="form-group">
+                    <label for="max-cycles">PRPD显示周期数:</label>
+                    <input type="number" id="max-cycles" min="1" max="100" value="10">
+                </div>
+                
+                <div class="form-group">
+                    <label>PRPS显示周期数:</label>
+                    <span>固定显示最新的50个周期</span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="color-scheme">PRPS颜色方案:</label>
+                    <select id="color-scheme">
+                        <option value="default">默认方案</option>
+                        <option value="blue-green-red">蓝绿红</option>
+                        <option value="black-blue-purple">黑蓝紫</option>
+                        <option value="green-yellow-red">绿黄红</option>
+                    </select>
+                </div>
+                
+                <button id="save-settings">保存设置</button>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <p>GIS局部放电在线监测系统 &copy; 2023 | <a href="/api/db_test" target="_blank">检查数据库连接</a></p>
+    </footer>
+    
+    <script src="{{ url_for('static', path='/js/main.js') }}"></script>
+</body>
+</html> 
