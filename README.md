@@ -32,6 +32,9 @@ gis_pd_db/
   - README.md               # 项目总体说明
   - requirements.txt        # 桌面版依赖库
 ```
+![image](https://github.com/user-attachments/assets/663c9dca-d5a5-44b4-bbd0-aab41c982800)
+![image](https://github.com/user-attachments/assets/bff75477-5629-4ef7-b882-99e47129cea5)
+
 
 ## 功能特点
 
