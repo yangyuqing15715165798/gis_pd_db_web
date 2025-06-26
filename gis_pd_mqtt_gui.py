@@ -37,7 +37,24 @@ class DatabaseManager:
     def __init__(self, db_name="gis_pd_data.db"):
         """初始化数据库连接"""
         # 数据库文件路径
-        self.db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), db_name)
+        try:
+            # 获取应用程序根目录
+            if getattr(sys, 'frozen', False):
+                # 如果是打包后的应用程序，使用可执行文件所在目录
+                # 注意：不使用sys._MEIPASS，因为那是临时目录，应用关闭后会被删除
+                application_path = os.path.dirname(sys.executable)
+            else:
+                # 如果是普通Python脚本，使用脚本所在目录
+                application_path = os.path.dirname(os.path.abspath(__file__))
+            
+            # 数据库文件保存在应用程序目录下
+            self.db_path = os.path.join(application_path, db_name)
+            print(f"数据库路径: {self.db_path}")
+        except Exception as e:
+            # 如果出错，回退到当前工作目录
+            self.db_path = os.path.join(os.getcwd(), db_name)
+            print(f"获取应用路径出错，使用当前工作目录: {self.db_path}, 错误: {str(e)}")
+        
         self.conn = None
         self.cursor = None
         self.connected = False
@@ -1170,6 +1187,9 @@ class MainWindow(QMainWindow):
         self.save_to_db = False  # 默认不保存数据到数据库
         self.db_manager = DatabaseManager()  # 创建数据库管理器
         
+        # 获取保存路径信息
+        self.get_save_paths()
+        
         # 创建MQTT客户端
         self.mqtt_client = MQTTClient()
         self.mqtt_client.set_database_manager(self.db_manager)  # 设置数据库管理器
@@ -1228,6 +1248,11 @@ class MainWindow(QMainWindow):
         self.connect_button = QPushButton("连接")
         self.connect_button.clicked.connect(self.toggle_connection)
         connection_layout.addWidget(self.connect_button, 1, 3)
+        
+        # 添加查看路径按钮
+        self.paths_button = QPushButton("查看路径")
+        self.paths_button.clicked.connect(self.show_paths_info)
+        connection_layout.addWidget(self.paths_button, 0, 4)
         
         connection_group.setLayout(connection_layout)
         main_layout.addWidget(connection_group)
@@ -1930,8 +1955,10 @@ class MainWindow(QMainWindow):
             return
         
         try:
-            # 创建保存目录（如果不存在）
-            save_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "saved_images")
+            # 使用已经在get_save_paths中计算好的图像保存路径
+            save_dir = self.images_path
+            
+            # 确保保存目录存在
             if not os.path.exists(save_dir):
                 os.makedirs(save_dir)
             
@@ -2049,6 +2076,42 @@ class MainWindow(QMainWindow):
         )
         
         return cmap
+
+    def get_save_paths(self):
+        """获取数据库和图像保存路径"""
+        try:
+            # 获取应用程序路径
+            if getattr(sys, 'frozen', False):
+                # 如果是打包后的应用程序，使用可执行文件所在目录
+                # 注意：不使用sys._MEIPASS，因为那是临时目录，应用关闭后会被删除
+                application_path = os.path.dirname(sys.executable)
+            else:
+                # 如果是普通Python脚本，使用脚本所在目录
+                application_path = os.path.dirname(os.path.abspath(__file__))
+        except Exception as e:
+            # 如果出错，回退到当前工作目录
+            application_path = os.getcwd()
+            print(f"获取应用路径出错，使用当前工作目录: {application_path}, 错误: {str(e)}")
+        
+        # 保存路径信息
+        self.db_path = os.path.join(application_path, "gis_pd_data.db")
+        self.images_path = os.path.join(application_path, "saved_images")
+        
+        print(f"数据库路径: {self.db_path}")
+        print(f"图像保存路径: {self.images_path}")
+        
+        # 创建图像保存目录（如果不存在）
+        if not os.path.exists(self.images_path):
+            try:
+                os.makedirs(self.images_path)
+                print(f"已创建图像保存目录: {self.images_path}")
+            except Exception as e:
+                print(f"创建图像保存目录失败: {str(e)}")
+    
+    def show_paths_info(self):
+        """显示路径信息对话框"""
+        info_text = f"数据库文件路径:\n{self.db_path}\n\n图像保存路径:\n{self.images_path}"
+        QMessageBox.information(self, "文件保存路径信息", info_text)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
