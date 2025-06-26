@@ -23,9 +23,8 @@
 - **图表工具栏**：集成Matplotlib导航工具栏，支持缩放、平移、保存等操作
 - **CSV数据导出**：支持将累积的周期数据导出为CSV格式，便于在其他软件中分析
 - **自动保存PRPD图**：支持每5秒自动保存当前PRPD图为PNG格式，便于记录监测过程
+![image](https://github.com/user-attachments/assets/94d16217-a1c7-46c8-9fef-1d9a111964e0)
 
-
-![image](https://github.com/user-attachments/assets/5c99882a-c48b-47d6-93cd-9a14ee853c6b)
 
 ## 技术实现
 
